@@ -4,12 +4,14 @@ import json
 import time
 from datetime import datetime
 
-TOPIC = "sample-topic"
 
+BOOTSTRAP_SERVERS="192.168.1.15:29092" #localhost:9092,
+TOPIC = "telemetry"
+TOPIC_EVENTS = "events"
 
 async def producer_task():
     producer = AIOKafkaProducer(
-        bootstrap_servers="localhost:9092"
+        bootstrap_servers=BOOTSTRAP_SERVERS
     )
 
     await producer.start()
@@ -19,7 +21,7 @@ async def producer_task():
             message = {
                 "tag" : "pressure",
                 "timestamp": datetime.now().isoformat(),
-                "value": round(time.time() % 100, 2)
+                "value": round(time.time() % 120, 2)
             }
 
             await producer.send_and_wait(
@@ -37,9 +39,9 @@ async def producer_task():
 
 async def consumer_task():
     consumer = AIOKafkaConsumer(
-        TOPIC,
-        bootstrap_servers="localhost:9092",
-        group_id="my-group",
+        TOPIC_EVENTS,
+        bootstrap_servers=BOOTSTRAP_SERVERS,
+        group_id="monitor",
         auto_offset_reset="earliest"
     )
 
@@ -56,7 +58,7 @@ async def consumer_task():
 async def main():
     await asyncio.gather(
         producer_task(),
-        #consumer_task()
+        consumer_task()
     )
 
 

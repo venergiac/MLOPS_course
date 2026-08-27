@@ -10,7 +10,7 @@ WITH (
     'connector' = 'kafka',
     'topic' = 'telemetry',
     'properties.bootstrap.servers' = 'kafka:29092',
-    'properties.group.id' = 'flink-pressure-monitor',
+    'properties.group.id' = 'monitor',
     'scan.startup.mode' = 'earliest-offset',
     'format' = 'json',
     'json.fail-on-missing-field' = 'false',
@@ -28,7 +28,7 @@ CREATE TABLE pressure_event_sink (
 )
 WITH (
     'connector' = 'kafka',
-    'topic' = 'pressure-events',
+    'topic' = 'events',
     'properties.bootstrap.servers' = 'kafka:29092',
     'format' = 'json',
     'sink.delivery-guarantee' = 'at-least-once'
