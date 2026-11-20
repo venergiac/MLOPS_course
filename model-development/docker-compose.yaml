@@ -48,6 +48,7 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: minio
       AWS_SECRET_ACCESS_KEY: minio123
+      MLFLOW_SERVER_ALLOWED_HOSTS: "*"
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
     ports:
       - "5000:5000"
@@ -101,6 +102,8 @@ services:
       --email admin@test.com
       --password admin
       "
+    profiles: 
+      - airflow
       
   # -------------------------
   # Airflow Webserver
@@ -121,6 +124,8 @@ services:
     command: webserver
     ports:
       - "8080:8080"
+    profiles: 
+      - airflow
 
   # -------------------------
   # Airflow Scheduler
@@ -139,6 +144,26 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
     command: scheduler
+    profiles: 
+      - airflow
+
+
+  model-server:
+    image: ghcr.io/mlflow/mlflow:latest
+    depends_on:
+      - mlflow
+    ports:
+      - "5001:5001"
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    command: >
+      mlflow models serve
+      -m "models:/sound-anomaly/1"
+      --host 0.0.0.0
+      --port 5001
+      --no-conda
+    profiles: 
+      - serving
 
 volumes:
   postgres_data:
